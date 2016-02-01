@@ -11,9 +11,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.hcse.cache.service.CacheServiceTest;
 import com.hcse.d6.protocol.factory.D6ResponseMessageFactory;
 import com.hcse.d6.protocol.factory.D6ResponseMessageFactory4Client;
+import com.hcse.d6.protocol.factory.D6ResponseMessageFactory4JsonClient;
 import com.hcse.d6.protocol.factory.D6ResponseMessageFactory4Logistic;
 import com.hcse.d6.protocol.message.D6RequestMessage;
 import com.hcse.d6.protocol.message.D6RequestMessageDoc;
+import com.hcse.d6.protocol.message.D6RequestMessageV1;
+import com.hcse.d6.protocol.message.D6RequestMessageV3;
 import com.hcse.d6.protocol.message.D6ResponseMessage;
 import com.hcse.d6.service.DataService;
 
@@ -27,6 +30,90 @@ public class D6ServiceTest {
     private DataService service;
 
     @Test
+    public void testSearchV1() {
+        try {
+            String searchStr = "[S](([TX:TP:中国:北京:北京市-中国:天津:天津市]))&([CL:CC:080])[F][DG:PR:1][P][DG:UT:0]";
+
+            D6RequestMessage request = new D6RequestMessageV1(searchStr);
+
+            request.setDocsCount(2);
+
+            {
+                D6RequestMessageDoc doc = request.getDocById(0);
+                doc.setMachineId(11);
+                doc.setMd5Lite("69549A15E5BB908");
+                doc.setIndentCount(0XAAAAAAAA);
+                doc.setWeight(0XBBBBBBBBBBBBBBBBL);
+            }
+
+            {
+                D6RequestMessageDoc doc = request.getDocById(1);
+                doc.setMachineId(11);
+                doc.setMd5Lite("64b18687d1c562be");
+                doc.setIndentCount(0XCCCCCCCC);
+                doc.setWeight(0XDDDDDDDDDDDDDDDDL);
+            }
+
+            request.setServiceAddress("data://192.168.119.165:3000");
+
+            long start = System.currentTimeMillis();
+            D6ResponseMessage response = service.search(request, new D6ResponseMessageFactory());
+
+            long userd = System.currentTimeMillis() - start;
+            logger.info("time used:" + userd);
+
+            if (response != null) {
+                response.dump();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testSearchV3() {
+        try {
+            String searchStr = "[S](([TX:TP:中国:北京:北京市-中国:天津:天津市]))&([CL:CC:080])[F][DG:PR:1][P][DG:UT:0]";
+
+            D6RequestMessage request = new D6RequestMessageV3(searchStr);
+
+            request.setDocsCount(2);
+
+            {
+                D6RequestMessageDoc doc = request.getDocById(0);
+                doc.setMachineId(11);
+                doc.setMd5Lite("F6B33DBC35260D72");
+                doc.setIndentCount(0XAAAAAAAA);
+                doc.setWeight(0XBBBBBBBBBBBBBBBBL);
+            }
+
+            {
+                D6RequestMessageDoc doc = request.getDocById(1);
+                doc.setMachineId(11);
+                doc.setMd5Lite("5BD5577A89AA2B26");
+                doc.setIndentCount(0XCCCCCCCC);
+                doc.setWeight(0XDDDDDDDDDDDDDDDDL);
+            }
+
+            request.setServiceAddress("data://192.168.34.239:3000");
+
+            long start = System.currentTimeMillis();
+            D6ResponseMessage response = service.search(request, new D6ResponseMessageFactory4JsonClient());
+
+            long userd = System.currentTimeMillis() - start;
+            logger.info("time used:" + userd);
+
+            if (response != null) {
+                response.dump();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testSearch() {
         try {
             String searchStr = "[S](([TX:TP:中国:北京:北京市-中国:天津:天津市]))&([CL:CC:080])[F][DG:PR:1][P][DG:UT:0]";
@@ -38,7 +125,7 @@ public class D6ServiceTest {
             {
                 D6RequestMessageDoc doc = request.getDocById(0);
                 doc.setMachineId(11);
-                doc.setMd5Lite("63e74ddcce8b1b6a");
+                doc.setMd5Lite("69549A15E5BB908");
                 doc.setIndentCount(0XAAAAAAAA);
                 doc.setWeight(0XBBBBBBBBBBBBBBBBL);
             }
@@ -59,7 +146,7 @@ public class D6ServiceTest {
                 doc.setWeight(0XFFFFFFFFFFFFFFFFL);
             }
 
-            request.setServiceAddress("data://192.168.246.14:3000");
+            request.setServiceAddress("data://192.168.34.239:3000");
 
             long start = System.currentTimeMillis();
             D6ResponseMessage response = service.search(request, new D6ResponseMessageFactory());

@@ -160,6 +160,8 @@ public class FieldsMap {
         addField("ML");
         addField("HE");
         addField("HB");
+        addField("TE");
+        addField("FX");
     }
 
     public void addField(String name) {
@@ -169,7 +171,13 @@ public class FieldsMap {
     }
 
     public int getIndex(String name) {
-        return fieldsMap.get(name);
+        Integer index = fieldsMap.get(name);
+
+        if (index == null) {
+            return -1;
+        }
+
+        return index;
     }
 
     public String getFieldName(int index) {

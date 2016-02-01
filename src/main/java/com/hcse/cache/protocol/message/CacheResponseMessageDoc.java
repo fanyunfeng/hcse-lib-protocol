@@ -56,7 +56,20 @@ public class CacheResponseMessageDoc extends BasePacket {
     public void setFieldValue(String name, String value) {
         int index = prototype.getIndex(name);
 
-        values.add(index, value);
+        if (index < 0) {
+            logger.error("unknown field:" + name + " value:" + value);
+            return;
+        }
+
+        if (index < values.size()) {
+            values.set(index, value);
+        } else {
+            for (int i = values.size(); i < index; ++i) {
+                values.add("");
+            }
+
+            values.add(value);
+        }
     }
 
     public void setFieldValue(int index, String value) {

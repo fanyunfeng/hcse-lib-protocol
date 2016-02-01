@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.mina.core.buffer.IoBuffer;
 
 public class D6ResponseMessage {
     protected static final Logger logger = Logger.getLogger(D6ResponseMessage.class);
@@ -12,6 +13,7 @@ public class D6ResponseMessage {
     private int docsLength;
     private int docsCount;
 
+    private IoBuffer buffer;
     private ArrayList<D6ResponseMessageDoc> docs = new ArrayList<D6ResponseMessageDoc>();
 
     public int getHeaderLength() {
@@ -56,6 +58,14 @@ public class D6ResponseMessage {
 
     public void dataProcess() {
 
+    }
+
+    public void setBuffer(IoBuffer buffer) {
+        this.buffer = buffer;
+    }
+
+    public IoBuffer getBuffer() {
+        return buffer;
     }
 
     public void dump() {

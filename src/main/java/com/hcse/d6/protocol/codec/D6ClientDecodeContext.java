@@ -6,6 +6,7 @@ import com.hcse.d6.protocol.message.D6ResponseMessage;
 
 public class D6ClientDecodeContext {
     private int state;
+    private int version;
     private D6ResponseMessage responseMessage;
 
     private CharsetDecoder decoder;
@@ -21,6 +22,14 @@ public class D6ClientDecodeContext {
 
     public void setParseState(int state) {
         this.state = state;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     public CharsetDecoder getDecoder() {

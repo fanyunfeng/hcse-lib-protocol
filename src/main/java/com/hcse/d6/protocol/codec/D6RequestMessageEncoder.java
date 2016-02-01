@@ -1,12 +1,18 @@
 package com.hcse.d6.protocol.codec;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 
 import org.apache.log4j.Logger;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
+import org.codehaus.jackson.JsonEncoding;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.hcse.d6.protocol.message.D6RequestMessage;
 import com.hcse.d6.protocol.message.D6RequestMessageDoc;
@@ -16,50 +22,153 @@ import com.hcse.protocol.util.Encoder;
 public class D6RequestMessageEncoder<T extends D6RequestMessage> implements MessageEncoder<T> {
     protected static final Logger logger = Logger.getLogger(D6RequestMessageEncoder.class);
 
-    private static final String PACKAGE_MAGIC_NORMAL = "33334213";
+    private static final String PACKAGE_MAGIC_V1 = "33334213";
+    private static final String PACKAGE_MAGIC_V2 = "33334203";
+    private static final String PACKAGE_MAGIC_V3 = "33336666";
 
     private static final int REQ_NORMAL_HEADER_LEN = 24;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void encode(IoSession session, T message, ProtocolEncoderOutput out) throws Exception {
 
-        byte[] searchStrBuf = message.getSearchString().toUpperCase().getBytes(Constant.charsetName);
+        String magic = PACKAGE_MAGIC_V2;
 
-        int encodedSearchStringLength = searchStrBuf.length;
+        switch (message.getVersion()) {
+        case 1:
+            magic = PACKAGE_MAGIC_V1;
+        case 2: {
+            byte[] searchStrBuf = message.getSearchString().toUpperCase().getBytes(Constant.charsetName);
 
-        int count = message.getDocsCount();
-        int requestLength = (REQ_NORMAL_HEADER_LEN + encodedSearchStringLength + 21 * count);
+            int encodedSearchStringLength = searchStrBuf.length;
 
-        IoBuffer buf = IoBuffer.allocate(requestLength);
+            int count = message.getDocsCount();
+            int requestLength = (REQ_NORMAL_HEADER_LEN + encodedSearchStringLength + 21 * count);
 
-        buf.put(PACKAGE_MAGIC_NORMAL.getBytes());
+            IoBuffer buf = IoBuffer.allocate(requestLength);
 
-        Encoder.encodeLongString(buf, message.getDocsCount(), 8);
-        Encoder.encodeLongString(buf, encodedSearchStringLength, 8);
+            buf.put(magic.getBytes());
 
-        // serialize doc list
-        buf.order(ByteOrder.LITTLE_ENDIAN);
+            Encoder.encodeLongString(buf, message.getDocsCount(), 8);
+            Encoder.encodeLongString(buf, encodedSearchStringLength, 8);
 
-        for (D6RequestMessageDoc doc : message.getDocs()) {
-            buf.putLong(doc.getMd5Lite());
+            // serialize doc list
+            buf.order(ByteOrder.LITTLE_ENDIAN);
+
+            for (D6RequestMessageDoc doc : message.getDocs()) {
+                buf.putLong(doc.getMd5Lite());
+            }
+
+            for (D6RequestMessageDoc doc : message.getDocs()) {
+                buf.put(doc.getMachineId());
+            }
+
+            for (D6RequestMessageDoc doc : message.getDocs()) {
+                buf.putLong(doc.getWeight());
+            }
+
+            for (D6RequestMessageDoc doc : message.getDocs()) {
+                buf.putInt(doc.getIndentCount());
+            }
+
+            // serialize search string
+            buf.put(searchStrBuf);
+
+            buf.flip();
+            out.write(buf);
+            break;
         }
+        case 3: {
+            IoBuffer buf = IoBuffer.allocate(8192);
+            IoBuffer jsonBuf = IoBuffer.allocate(4096);
 
-        for (D6RequestMessageDoc doc : message.getDocs()) {
-            buf.put(doc.getMachineId());
+            OutputStreamWriter writer = new OutputStreamWriter(jsonBuf.asOutputStream(), Constant.charsetName);
+
+            JsonGenerator generator = objectMapper.getJsonFactory().createJsonGenerator(writer);
+
+            generator.writeStartObject();
+            {
+                generator.writeArrayFieldStart("RETURNDATA");
+                {
+                    generator.writeStartObject();
+                    {
+                        generator.writeNumberField("TYPE", 2);
+                        generator.writeNumberField("NPOS", 5);
+                        generator.writeNumberField("PAGENUM", 24);
+                        generator.writeNumberField("lSchStrLen", 1);
+                        generator.writeNumberField("ISNEEDTT", 1);
+
+                        generator.writeArrayFieldStart("RESULTDATA");
+                        {
+                            for (D6RequestMessageDoc doc : message.getDocs()) {
+                                generator.writeString(Long.toHexString(doc.getMd5Lite()).toUpperCase());
+                            }
+                        }
+                        generator.writeEndArray();
+
+                        generator.writeArrayFieldStart("RESULTCOMID");
+                        {
+                            for (D6RequestMessageDoc doc : message.getDocs()) {
+                                generator.writeNumber(doc.getMachineId());
+                            }
+                        }
+                        generator.writeEndArray();
+
+                        generator.writeArrayFieldStart("MCID");
+                        {
+                            for (D6RequestMessageDoc doc : message.getDocs()) {
+                                generator.writeNumber(doc.getMachineId());
+                            }
+                        }
+                        generator.writeEndArray();
+
+                        generator.writeArrayFieldStart("RESULTPOWER");
+                        {
+                            for (D6RequestMessageDoc doc : message.getDocs()) {
+                                generator.writeNumber(doc.getWeight());
+                            }
+                        }
+                        generator.writeEndArray();
+
+                        generator.writeStringField("SEARCHSTRING", message.getSearchString());
+
+                        generator.writeArrayFieldStart("RESULTINDENT");
+                        {
+                            for (D6RequestMessageDoc doc : message.getDocs()) {
+                                generator.writeNumber(doc.getIndentCount());
+                            }
+                        }
+                        generator.writeEndArray();
+
+                    }
+                    generator.writeEndObject();
+                }
+                generator.writeEndArray();
+            }
+            generator.writeEndObject();
+
+            generator.flush();
+            writer.flush();
+
+            int size = jsonBuf.position();
+
+            buf.put(PACKAGE_MAGIC_V3.getBytes());
+            Encoder.encodeLongString(buf, 0, 8);
+            Encoder.encodeLongString(buf, size, 8);
+
+            jsonBuf.flip();
+            buf.put(jsonBuf);
+
+            buf.flip();
+
+            out.write(buf);
+
+            break;
         }
-
-        for (D6RequestMessageDoc doc : message.getDocs()) {
-            buf.putLong(doc.getWeight());
+        default: {
+            return;
         }
-
-        for (D6RequestMessageDoc doc : message.getDocs()) {
-            buf.putInt(doc.getIndentCount());
         }
-
-        // serialize search string
-        buf.put(searchStrBuf);
-
-        buf.flip();
-        out.write(buf);
     }
 }

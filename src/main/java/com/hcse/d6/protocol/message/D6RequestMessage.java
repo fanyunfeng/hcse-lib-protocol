@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class D6RequestMessage {
     private String searchString;
 
+    private int version = 1;
     private int docsCount;
     private ArrayList<D6RequestMessageDoc> docs;
 
@@ -67,5 +68,13 @@ public class D6RequestMessage {
 
     public D6RequestMessageDoc getDocById(int id) {
         return docs.get(id);
+    }
+
+    protected void setVersion(int v) {
+        this.version = v;
+    }
+
+    public int getVersion() {
+        return version;
     }
 }
