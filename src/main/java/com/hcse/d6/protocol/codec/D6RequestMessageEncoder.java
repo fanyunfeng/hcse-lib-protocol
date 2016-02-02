@@ -80,12 +80,13 @@ public class D6RequestMessageEncoder<T extends D6RequestMessage> implements Mess
             break;
         }
         case 3: {
-            IoBuffer buf = IoBuffer.allocate(8192);
-            IoBuffer jsonBuf = IoBuffer.allocate(4096);
+            IoBuffer buf = IoBuffer.allocate(4096);
 
-            OutputStreamWriter writer = new OutputStreamWriter(jsonBuf.asOutputStream(), Constant.charsetName);
+            OutputStreamWriter writer = new OutputStreamWriter(buf.asOutputStream(), Constant.charsetName);
 
             JsonGenerator generator = objectMapper.getJsonFactory().createJsonGenerator(writer);
+
+            buf.skip(24);
 
             generator.writeStartObject();
             {
@@ -148,20 +149,26 @@ public class D6RequestMessageEncoder<T extends D6RequestMessage> implements Mess
             }
             generator.writeEndObject();
 
+            //
             generator.flush();
             writer.flush();
 
-            int size = jsonBuf.position();
+            // added header
+            int position = buf.position();
+            int size = position - 24;
 
+            buf.position(0);
+
+            //
             buf.put(PACKAGE_MAGIC_V3.getBytes());
             Encoder.encodeLongString(buf, 0, 8);
             Encoder.encodeLongString(buf, size, 8);
 
-            jsonBuf.flip();
-            buf.put(jsonBuf);
+            // reset
+            buf.position(position);
 
+            //
             buf.flip();
-
             out.write(buf);
 
             break;

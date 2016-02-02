@@ -2,6 +2,7 @@ package com.hcse.protocol.util.packet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class FieldsMap {
     private ArrayList<String> fields = new ArrayList<String>();
@@ -182,6 +183,10 @@ public class FieldsMap {
 
     public String getFieldName(int index) {
         return fields.get(index);
+    }
+
+    public List<String> getFields() {
+        return fields;
     }
 
     public int size() {

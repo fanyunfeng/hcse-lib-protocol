@@ -72,6 +72,14 @@ public class CacheResponseMessageDoc extends BasePacket {
         }
     }
 
+    public List<String> getValues() {
+        return values;
+    }
+
+    public List<String> getNames() {
+        return prototype.getFields();
+    }
+
     public void setFieldValue(int index, String value) {
         if (index < prototype.size()) {
             values.add(index, value);
