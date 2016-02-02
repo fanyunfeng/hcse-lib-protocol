@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.hcse.protocol.util.packet.BaseDoc;
 import com.hcse.protocol.util.packet.Parameter;
 
 public class CacheResponseMessage extends CacheResponseHeader {
@@ -14,7 +15,7 @@ public class CacheResponseMessage extends CacheResponseHeader {
 
     private int parseState;
 
-    private List<CacheResponseMessageDoc> docs;// 文档
+    private List<BaseDoc> docs;// 文档
 
     private String[] cutWords;
 
@@ -97,11 +98,11 @@ public class CacheResponseMessage extends CacheResponseHeader {
         this.tipWord = tipWord;
     }
 
-    public List<CacheResponseMessageDoc> getDocs() {
+    public List<BaseDoc> getDocs() {
         return docs;
     }
 
-    public void setDocs(List<CacheResponseMessageDoc> docs) {
+    public void setDocs(List<BaseDoc> docs) {
         this.docs = docs;
     }
 
@@ -143,7 +144,7 @@ public class CacheResponseMessage extends CacheResponseHeader {
 
         logger.info("document size:" + docs.size());
 
-        for (CacheResponseMessageDoc doc : docs) {
+        for (BaseDoc doc : docs) {
             doc.dump();
         }
     }

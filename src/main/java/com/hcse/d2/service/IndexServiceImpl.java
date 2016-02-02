@@ -21,8 +21,12 @@ import com.hcse.service.common.ServiceDiscoveryService;
 public class IndexServiceImpl implements IndexService {
     protected final Logger logger = Logger.getLogger(IndexServiceImpl.class);
 
+    private ServiceDiscoveryService serviceDiscovery;
+
     @Autowired
-    ServiceDiscoveryService serviceDiscovery;
+    public void setServiceDiscoveryService(ServiceDiscoveryService service) {
+        serviceDiscovery = service;
+    }
 
     private int maxRetryTimes;
 

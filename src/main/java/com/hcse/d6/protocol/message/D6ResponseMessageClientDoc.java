@@ -1,24 +1,31 @@
 package com.hcse.d6.protocol.message;
 
+import java.nio.ByteOrder;
 import java.nio.charset.CharsetDecoder;
 
-import com.hcse.cache.protocol.message.CacheResponseMessageDoc;
+import org.apache.mina.core.buffer.IoBuffer;
+
 import com.hcse.protocol.util.codec.DocumentDecoder;
+import com.hcse.protocol.util.packet.BaseDoc;
 import com.hcse.protocol.util.packet.FieldsMap;
 
 public class D6ResponseMessageClientDoc extends D6ResponseMessageDoc {
-    private CacheResponseMessageDoc doc;
+    private BaseDoc doc;
 
     public D6ResponseMessageClientDoc() {
-        doc = new CacheResponseMessageDoc();
+        doc = new BaseDoc();
     }
 
     public D6ResponseMessageClientDoc(FieldsMap fileMap) {
-        doc = new CacheResponseMessageDoc(fileMap);
+        doc = new BaseDoc(fileMap);
     }
 
     public void dataProcess(CharsetDecoder decoder) throws Exception {
-        DocumentDecoder.decodeResponseMessageDoc(this.getBuffer(), doc, decoder);
+        IoBuffer buf = this.getBuffer();
+
+        buf.order(ByteOrder.LITTLE_ENDIAN);
+
+        DocumentDecoder.decodeResponseMessageDoc(buf, doc, decoder);
         doc.dataProcess(decoder);
     }
 
@@ -28,6 +35,11 @@ public class D6ResponseMessageClientDoc extends D6ResponseMessageDoc {
 
             return;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends BaseDoc> T getDocument() {
+        return (T) doc;
     }
 
     public void setFieldValue(String name, String value) {

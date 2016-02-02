@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.mina.core.buffer.IoBuffer;
 
+import com.hcse.protocol.util.packet.BasePacket;
+
 public class D6ResponseMessage {
     protected static final Logger logger = Logger.getLogger(D6ResponseMessage.class);
 
@@ -14,7 +16,7 @@ public class D6ResponseMessage {
     private int docsCount;
 
     private IoBuffer buffer;
-    private ArrayList<D6ResponseMessageDoc> docs = new ArrayList<D6ResponseMessageDoc>();
+    private ArrayList<BasePacket> docs = new ArrayList<BasePacket>();
 
     public int getHeaderLength() {
         return headerLength;
@@ -32,11 +34,11 @@ public class D6ResponseMessage {
         this.docsCount = count;
     }
 
-    public List<D6ResponseMessageDoc> getDocs() {
+    public List<BasePacket> getDocs() {
         return docs;
     }
 
-    public D6ResponseMessageDoc getDocById(int id) {
+    public BasePacket getDocById(int id) {
         return docs.get(id);
     }
 
@@ -73,7 +75,7 @@ public class D6ResponseMessage {
         logger.info("docsCount:" + docsCount);
 
         int i = 0;
-        for (D6ResponseMessageDoc doc : docs) {
+        for (BasePacket doc : docs) {
             doc.dump(i);
             i++;
         }

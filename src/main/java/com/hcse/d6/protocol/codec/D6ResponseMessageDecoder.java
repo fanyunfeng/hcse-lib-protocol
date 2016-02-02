@@ -126,12 +126,15 @@ public class D6ResponseMessageDecoder extends CumulativeProtocolDecoder {
             }
 
             bodyDocDecodeForV1(responseMessage, session, in, ctx.getDecoder(), beginDocs);
+            break;
         }
         case 2: {
             bodyDocDecodeForV2(responseMessage, session, in, ctx.getDecoder());
+            break;
         }
         case 3: {
             bodyDocDecodeForV3(responseMessage, session, in, ctx.getDecoder());
+            break;
         }
         }
     }
@@ -234,11 +237,10 @@ public class D6ResponseMessageDecoder extends CumulativeProtocolDecoder {
                         pojoDoc.setFieldValue(name, value.getTextValue());
                     }
                 }
-                
+
                 responseMessage.appendDoc(pojoDoc);
             }
-            
-            
+
         }
     }
 }

@@ -16,12 +16,12 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 import com.hcse.cache.protocol.factory.CacheResponseMessageFactory;
 import com.hcse.cache.protocol.message.CacheResponseMessage;
-import com.hcse.cache.protocol.message.CacheResponseMessageDoc;
 import com.hcse.protocol.util.Constant;
 import com.hcse.protocol.util.Decoder;
 import com.hcse.protocol.util.LimitQueue;
 import com.hcse.protocol.util.codec.DocumentDecoder;
 import com.hcse.protocol.util.codec.ParameterDecoder;
+import com.hcse.protocol.util.packet.BaseDoc;
 
 public class CacheResponseMessageDecoder extends CumulativeProtocolDecoder {
     public static final int PACK_MARK_LENGTH = 8;
@@ -253,11 +253,11 @@ public class CacheResponseMessageDecoder extends CumulativeProtocolDecoder {
 
         queue.pushLimit(in, length);
 
-        List<CacheResponseMessageDoc> docs = new ArrayList<CacheResponseMessageDoc>();
-        CacheResponseMessageDoc document = null;
+        List<BaseDoc> docs = new ArrayList<BaseDoc>();
+        BaseDoc document = null;
 
         while (in.remaining() > 23) {
-            CacheResponseMessageDoc doc = factory.createResponseMessageDoc();
+            BaseDoc doc = factory.createResponseMessageDoc();
 
             document = DocumentDecoder.decodeResponseMessageDoc(in, doc, decoder);
 

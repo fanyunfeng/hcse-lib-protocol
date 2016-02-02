@@ -54,7 +54,7 @@ public class D6ServiceTest {
                 doc.setWeight(0XDDDDDDDDDDDDDDDDL);
             }
 
-            request.setServiceAddress("data://192.168.119.165:3000");
+            request.setServiceAddress("data://192.168.34.239:3000");
 
             long start = System.currentTimeMillis();
             D6ResponseMessage response = service.search(request, new D6ResponseMessageFactory());

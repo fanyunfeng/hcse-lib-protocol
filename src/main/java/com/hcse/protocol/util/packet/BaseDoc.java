@@ -1,30 +1,30 @@
-package com.hcse.cache.protocol.message;
+package com.hcse.protocol.util.packet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.hcse.protocol.util.packet.BasePacket;
-import com.hcse.protocol.util.packet.FieldsMap;
+import com.hcse.protocol.util.Decoder;
 
-public class CacheResponseMessageDoc extends BasePacket {
-    protected static final Logger logger = Logger.getLogger(CacheResponseMessageDoc.class);
+public class BaseDoc extends BasePacket {
+    protected static final Logger logger = Logger.getLogger(BaseDoc.class);
 
     private long md5Lite;
     private long weight;
 
     private int groupCount;
+    private String md5LiteString;
 
     private FieldsMap prototype;
     private ArrayList<String> values;
 
-    public CacheResponseMessageDoc() {
+    public BaseDoc() {
         this.prototype = FieldsMap.create(0);
         values = new ArrayList<String>(prototype.size());
     }
 
-    public CacheResponseMessageDoc(FieldsMap prototype) {
+    public BaseDoc(FieldsMap prototype) {
         this.prototype = prototype;
         values = new ArrayList<String>(prototype.size());
     }
@@ -33,8 +33,21 @@ public class CacheResponseMessageDoc extends BasePacket {
         return md5Lite;
     }
 
+    public String getMd5LiteString() {
+        if (md5LiteString == null) {
+            md5LiteString = Long.toHexString(md5Lite).toLowerCase();
+        }
+
+        return md5LiteString;
+    }
+
     public void setMd5Lite(long md5Lit) {
         this.md5Lite = md5Lit;
+    }
+
+    public void setMd5LiteString(String md5Lite) {
+        this.md5LiteString = md5Lite.toUpperCase();
+        this.md5Lite = Decoder.String2MD5Lite(md5Lite);
     }
 
     public long getWeight() {

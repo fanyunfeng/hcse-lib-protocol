@@ -23,8 +23,12 @@ import com.hcse.service.common.ServiceDiscoveryService;
 public class DataServiceImpl implements DataService {
     protected final Logger logger = Logger.getLogger(DataServiceImpl.class);
 
-    @Autowired
     private ServiceDiscoveryService serviceDiscovery;
+
+    @Autowired
+    public void setServiceDiscoveryService(ServiceDiscoveryService service) {
+        serviceDiscovery = service;
+    }
 
     private NioSocketConnector connector;
 
@@ -87,6 +91,7 @@ public class DataServiceImpl implements DataService {
     public void close() {
         closeConnector(connector);
     }
+
     @Override
     public D6ResponseMessage search(D6RequestMessage request, D6ResponseMessageFactory factory)
             throws MalformedURLException {
@@ -140,11 +145,11 @@ public class DataServiceImpl implements DataService {
         }
 
         if (connector != null && factory != null) {
-                if (!connector.isDisposed()) {
-                    connector.dispose();
+            if (!connector.isDisposed()) {
+                connector.dispose();
                 logger.info("connector closed.");
-                }
             }
+        }
         return resp;
     }
 }

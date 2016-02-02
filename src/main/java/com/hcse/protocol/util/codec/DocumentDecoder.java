@@ -5,10 +5,10 @@ import java.nio.charset.CharsetDecoder;
 import org.apache.mina.core.buffer.IoBuffer;
 
 import com.hcse.cache.protocol.codec.CacheResponseMessageDecoder;
-import com.hcse.cache.protocol.message.CacheResponseMessageDoc;
+import com.hcse.protocol.util.packet.BaseDoc;
 
 public class DocumentDecoder {
-    public static CacheResponseMessageDoc decodeResponseMessageDoc(IoBuffer in, CacheResponseMessageDoc doc,
+    public static BaseDoc decodeResponseMessageDoc(IoBuffer in, BaseDoc doc,
             CharsetDecoder decoder) throws Exception {
 
         parseHeader(in, doc);
@@ -56,7 +56,7 @@ public class DocumentDecoder {
         return doc;
     }
 
-    private static void parseHeader(IoBuffer in, CacheResponseMessageDoc doc) throws Exception {
+    private static void parseHeader(IoBuffer in, BaseDoc doc) throws Exception {
         // (Md5值(8)+ 0x08 + 权重(8) + 0x08 + 缩进(4) + 0x08)
         doc.setMd5Lite(in.getLong());
         // 0x08

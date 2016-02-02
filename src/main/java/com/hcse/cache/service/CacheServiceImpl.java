@@ -22,8 +22,12 @@ import com.hcse.service.common.ServiceDiscoveryService;
 public class CacheServiceImpl implements CacheService {
     protected final Logger logger = Logger.getLogger(CacheServiceImpl.class);
 
+    private ServiceDiscoveryService serviceDiscovery;
+
     @Autowired
-    ServiceDiscoveryService serviceDiscovery;
+    public void setServiceDiscoveryService(ServiceDiscoveryService service) {
+        serviceDiscovery = service;
+    }
 
     private int maxRetryTimes;
 
