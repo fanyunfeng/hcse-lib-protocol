@@ -10,7 +10,7 @@ import com.hcse.protocol.util.packet.BaseDoc;
 import com.hcse.protocol.util.packet.FieldsMap;
 
 public class D6ResponseMessageClientDoc extends D6ResponseMessageDoc {
-    private BaseDoc doc;
+    protected BaseDoc doc;
 
     public D6ResponseMessageClientDoc() {
         doc = new BaseDoc();
