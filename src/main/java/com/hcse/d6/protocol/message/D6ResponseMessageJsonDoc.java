@@ -6,7 +6,7 @@ import com.hcse.protocol.util.packet.BaseDoc;
 import com.hcse.protocol.util.packet.FieldsMap;
 
 public class D6ResponseMessageJsonDoc {
-    private BaseDoc doc;
+    protected BaseDoc doc;
 
     public D6ResponseMessageJsonDoc() {
         doc = new BaseDoc();

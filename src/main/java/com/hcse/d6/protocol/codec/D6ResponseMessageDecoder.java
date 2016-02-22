@@ -88,7 +88,17 @@ public class D6ResponseMessageDecoder extends CumulativeProtocolDecoder {
             }
 
             headerDecode(ctx, responseMessage, session, in);
+
+            if (responseMessage.getBodyLength() <= 0) {
+                responseMessage.dataProcess();
+                out.write(responseMessage);
+                
+                ctx.setParseState(3);
+                return true;
+            }
+
             ctx.setParseState(2);
+
         }
         case 2:
             if (in.remaining() < responseMessage.getBodyLength()) {

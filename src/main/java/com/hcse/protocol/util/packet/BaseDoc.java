@@ -29,6 +29,10 @@ public class BaseDoc extends BasePacket {
         values = new ArrayList<String>(prototype.size());
     }
 
+    public void setPrototype(FieldsMap prototype) {
+        this.prototype = prototype;
+    }
+
     public long getMd5Lite() {
         return md5Lite;
     }

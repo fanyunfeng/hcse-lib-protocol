@@ -10,6 +10,11 @@ public class Decoder {
 
     public static int decodeLongString(IoBuffer in, CharsetDecoder decoder) throws Exception {
         String str = in.getString(LONG_STRING_LENGTH, decoder);
+
+        if (str.isEmpty()) {
+            return 0;
+        }
+
         int ret = Integer.parseInt(str.trim());
 
         return ret;

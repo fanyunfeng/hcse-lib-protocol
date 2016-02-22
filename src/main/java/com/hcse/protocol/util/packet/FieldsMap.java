@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class FieldsMap {
-    private ArrayList<String> fields = new ArrayList<String>();
-    private HashMap<String, Integer> fieldsMap = new HashMap<String, Integer>();
+public class FieldsMap implements Cloneable {
+    private ArrayList<String> fields;
+    private HashMap<String, Integer> fieldsMap;
 
     static FieldsMap[] masp = new FieldsMap[2];
 
@@ -19,14 +19,21 @@ public class FieldsMap {
     }
 
     private FieldsMap(int type) {
-        if (type == 0) {
+        switch (type) {
+        case 0:
             createField4Common();
-        } else {
+            break;
+        case 1:
             createFields4Logistics();
+            break;
+        default:
         }
     }
 
     public void createFields4Logistics() {
+        fields = new ArrayList<String>();
+        fieldsMap = new HashMap<String, Integer>();
+
         addField("RQ");
         addField("CQ");
         addField("PC");
@@ -93,6 +100,9 @@ public class FieldsMap {
     }
 
     public void createField4Common() {
+        fields = new ArrayList<String>();
+        fieldsMap = new HashMap<String, Integer>();
+
         addField("RQ");
         addField("CQ");
         addField("PC");
@@ -191,5 +201,15 @@ public class FieldsMap {
 
     public int size() {
         return fields.size();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Object clone() {
+        FieldsMap obj = new FieldsMap(-1);
+
+        obj.fields = (ArrayList<String>) this.fields.clone();
+        obj.fieldsMap = (HashMap<String, Integer>) this.fieldsMap.clone();
+
+        return obj;
     }
 }
