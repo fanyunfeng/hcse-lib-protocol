@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.hcse.cache.service.CacheServiceTest;
+import com.hcse.d2.protocol.codec.D2ClientCodecFactory;
 import com.hcse.d2.protocol.factory.D2ResponseMessageFactory;
 import com.hcse.d2.protocol.message.D2RequestMessage;
 import com.hcse.d2.protocol.message.D2ResponseMessage;
@@ -36,7 +37,8 @@ public class D2ServiceTest {
             request.setServiceAddress("index://192.168.244.250:3000");
 
             long start = System.currentTimeMillis();
-            D2ResponseMessage response = service.search(request, new D2ResponseMessageFactory());
+            D2ResponseMessage response = service.search(request, new D2ClientCodecFactory(
+                    new D2ResponseMessageFactory()));
 
             long userd = System.currentTimeMillis() - start;
             logger.info("time used:" + userd);

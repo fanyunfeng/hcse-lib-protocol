@@ -1,19 +1,19 @@
-package com.hcse.d2.protocol.codec;
+package com.hcse.cache.protocol.codec;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.codec.demux.DemuxingProtocolCodecFactory;
 
-import com.hcse.d2.protocol.factory.D2ResponseMessageFactory;
+import com.hcse.cache.protocol.factory.CacheResponseMessageFactory;
 
-public class D2ClientCoderFactory extends DemuxingProtocolCodecFactory {
-    private D2ClientEncoder requestEncoder;
-    private D2ResponseMessageDecoder responseDecoder;
+public class CacheClientCodecFactory extends DemuxingProtocolCodecFactory {
+    private CacheClientEncoder requestEncoder;
+    private CacheResponseMessageDecoder responseDecoder;
 
-    public D2ClientCoderFactory(D2ResponseMessageFactory factory) {
-        this.requestEncoder = new D2ClientEncoder();
-        this.responseDecoder = new D2ResponseMessageDecoder(factory);
+    public CacheClientCodecFactory(CacheResponseMessageFactory factory) {
+        this.requestEncoder = new CacheClientEncoder();
+        this.responseDecoder = new CacheResponseMessageDecoder(factory);
     }
 
     @Override

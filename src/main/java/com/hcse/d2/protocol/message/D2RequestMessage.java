@@ -1,6 +1,8 @@
 package com.hcse.d2.protocol.message;
 
-public class D2RequestMessage {
+import com.hcse.service.BaseRequest;
+
+public class D2RequestMessage implements BaseRequest {
     private String searchString;
 
     private boolean indent;
@@ -10,7 +12,6 @@ public class D2RequestMessage {
     private boolean vip;
     private int sortId;
 
-    // 写死可以不变
     final String comIp = "7f00000100000000";
     private String userIp;
     private int statisicId;

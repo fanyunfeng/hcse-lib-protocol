@@ -2,7 +2,9 @@ package com.hcse.d6.protocol.message;
 
 import java.util.ArrayList;
 
-public class D6RequestMessage {
+import com.hcse.service.BaseRequest;
+
+public class D6RequestMessage implements BaseRequest {
     private String searchString;
 
     private int version = 1;

@@ -1,6 +1,8 @@
 package com.hcse.cache.protocol.message;
 
-public class CacheRequestMessage {
+import com.hcse.service.BaseRequest;
+
+public class CacheRequestMessage implements BaseRequest {
 
     // 协议的标识 3b07^2k6 和 3b06^2k6 -----> 默认为 3b06^2k6
 

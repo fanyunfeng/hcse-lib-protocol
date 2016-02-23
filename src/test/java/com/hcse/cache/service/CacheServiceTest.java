@@ -8,6 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.hcse.cache.protocol.codec.CacheClientCodecFactory;
 import com.hcse.cache.protocol.factory.CacheResponseMessageFactory;
 import com.hcse.cache.protocol.factory.CacheResponseMessageFactory4Logistics;
 import com.hcse.cache.protocol.message.CacheRequestMessage;
@@ -40,7 +41,7 @@ public class CacheServiceTest extends Thread {
             // reqMessage.setServiceAddress("cache://192.168.60.81:5555");
 
             long start = System.currentTimeMillis();
-            CacheResponseMessage response = service.search(reqMessage, new CacheResponseMessageFactory4Logistics());
+            CacheResponseMessage response = service.search(reqMessage, new CacheClientCodecFactory(new CacheResponseMessageFactory4Logistics()));
 
             long userd = System.currentTimeMillis() - start;
             logger.info("time used:" + userd);
@@ -74,7 +75,7 @@ public class CacheServiceTest extends Thread {
             request.setServiceAddress("cache://192.168.244.250:5555");
 
             long start = System.currentTimeMillis();
-            CacheResponseMessage response = service.search(request, new CacheResponseMessageFactory());
+            CacheResponseMessage response = service.search(request, new CacheClientCodecFactory(new CacheResponseMessageFactory()));
 
             long userd = System.currentTimeMillis() - start;
             logger.info("time used:" + userd);

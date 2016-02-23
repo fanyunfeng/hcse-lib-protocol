@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.hcse.cache.service.CacheServiceTest;
+import com.hcse.d6.protocol.codec.D6ClientCodecFactory;
 import com.hcse.d6.protocol.factory.D6ResponseMessageFactory;
 import com.hcse.d6.protocol.factory.D6ResponseMessageFactory4Client;
 import com.hcse.d6.protocol.factory.D6ResponseMessageFactory4JsonClient;
@@ -57,7 +58,8 @@ public class D6ServiceTest {
             request.setServiceAddress("data://192.168.34.239:3000");
 
             long start = System.currentTimeMillis();
-            D6ResponseMessage response = service.search(request, new D6ResponseMessageFactory());
+            D6ResponseMessage response = service.search(request, new D6ClientCodecFactory(
+                    new D6ResponseMessageFactory()));
 
             long userd = System.currentTimeMillis() - start;
             logger.info("time used:" + userd);
@@ -99,7 +101,8 @@ public class D6ServiceTest {
             request.setServiceAddress("data://192.168.34.239:3000");
 
             long start = System.currentTimeMillis();
-            D6ResponseMessage response = service.search(request, new D6ResponseMessageFactory4JsonClient());
+            D6ResponseMessage response = service.search(request, new D6ClientCodecFactory(
+                    new D6ResponseMessageFactory4JsonClient()));
 
             long userd = System.currentTimeMillis() - start;
             logger.info("time used:" + userd);
@@ -149,7 +152,8 @@ public class D6ServiceTest {
             request.setServiceAddress("data://192.168.34.239:3000");
 
             long start = System.currentTimeMillis();
-            D6ResponseMessage response = service.search(request, new D6ResponseMessageFactory());
+            D6ResponseMessage response = service.search(request, new D6ClientCodecFactory(
+                    new D6ResponseMessageFactory()));
 
             long userd = System.currentTimeMillis() - start;
             logger.info("time used:" + userd);
@@ -199,7 +203,8 @@ public class D6ServiceTest {
             request.setServiceAddress("data://192.168.246.14:3000");
 
             long start = System.currentTimeMillis();
-            D6ResponseMessage response = service.search(request, new D6ResponseMessageFactory4Client());
+            D6ResponseMessage response = service.search(request, new D6ClientCodecFactory(
+                    new D6ResponseMessageFactory4Client()));
 
             long userd = System.currentTimeMillis() - start;
             logger.info("time used:" + userd);
@@ -249,7 +254,8 @@ public class D6ServiceTest {
             request.setServiceAddress("data://192.168.246.14:3000");
 
             long start = System.currentTimeMillis();
-            D6ResponseMessage response = service.search(request, new D6ResponseMessageFactory4Logistic());
+            D6ResponseMessage response = service.search(request, new D6ClientCodecFactory(
+                    new D6ResponseMessageFactory4Logistic()));
 
             long userd = System.currentTimeMillis() - start;
             logger.info("time used:" + userd);
