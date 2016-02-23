@@ -1,16 +1,13 @@
 package com.hcse.d6.protocol.codec;
 
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 
 import org.apache.log4j.Logger;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 

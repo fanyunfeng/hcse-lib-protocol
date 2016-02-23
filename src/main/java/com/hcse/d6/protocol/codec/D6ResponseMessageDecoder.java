@@ -1,7 +1,6 @@
 package com.hcse.d6.protocol.codec;
 
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -92,7 +91,7 @@ public class D6ResponseMessageDecoder extends CumulativeProtocolDecoder {
             if (responseMessage.getBodyLength() <= 0) {
                 responseMessage.dataProcess();
                 out.write(responseMessage);
-                
+
                 ctx.setParseState(3);
                 return true;
             }

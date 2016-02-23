@@ -17,6 +17,9 @@ import com.hcse.d2.protocol.factory.D2ResponseMessageFactory;
 import com.hcse.d2.protocol.message.D2RequestMessage;
 import com.hcse.d2.protocol.message.D2ResponseMessage;
 import com.hcse.protocol.util.LoggingFilter;
+import com.hcse.service.ConnectTimeout;
+import com.hcse.service.RequestTimeout;
+import com.hcse.service.ServiceException;
 import com.hcse.service.common.ServiceDiscoveryService;
 
 @Service
@@ -92,19 +95,18 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public D2ResponseMessage search(D2RequestMessage request, D2ResponseMessageFactory factory)
-            throws MalformedURLException {
+            throws MalformedURLException, ServiceException {
 
         NioSocketConnector connector = this.connector;
 
         D2ResponseMessage resp = null;
         IoSession session = null;
 
-        int retryTimes = 1;
-
         if (factory != null) {
             connector = openConnector(factory);
         }
 
+        int retryTimes = 0;
         while (retryTimes < maxRetryTimes) {
             ConnectFuture cf = connector.connect(serviceDiscovery.lookup(request.getServiceAddress()));
 
@@ -124,15 +126,22 @@ public class IndexServiceImpl implements IndexService {
                             break;
                         } else {
                             retryTimes++;
+                            if (retryTimes >= maxRetryTimes) {
+                                throw new RequestTimeout();
+                            } else {
+                                logger.error("response is null.");
+                            }
                         }
                     }
                     cf.getSession().getCloseFuture().awaitUninterruptibly();
                 } else {
                     retryTimes++;
+                    if (retryTimes >= maxRetryTimes) {
+                        throw new ConnectTimeout();
+                    } else {
+                        logger.error("connection is not connected.");
+                    }
                 }
-            } catch (Exception e) {
-                logger.error("exception:", e);
-                retryTimes++;
             } finally {
                 if (session != null) {
                     session.close(true);
@@ -143,13 +152,8 @@ public class IndexServiceImpl implements IndexService {
             }
         }
 
-        if (connector != null && connector != this.connector) {
-            if (!connector.isDisposed()) {
-                connector.dispose();
-                if (logger.isDebugEnabled()) {
-                    logger.debug("connector closed.");
-                }
-            }
+        if (connector != this.connector) {
+            closeConnector(connector);
         }
 
         return resp;
