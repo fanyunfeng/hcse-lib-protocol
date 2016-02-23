@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.ReadFuture;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import com.hcse.d2.protocol.codec.D2ClientCoderFactory;
 import com.hcse.d2.protocol.factory.D2ResponseMessageFactory;
 import com.hcse.d2.protocol.message.D2RequestMessage;
 import com.hcse.d2.protocol.message.D2ResponseMessage;
+import com.hcse.protocol.util.LoggingFilter;
 import com.hcse.service.common.ServiceDiscoveryService;
 
 @Service
@@ -28,11 +30,11 @@ public class IndexServiceImpl implements IndexService {
         serviceDiscovery = service;
     }
 
-    private int maxRetryTimes;
+    private NioSocketConnector connector;
 
-    public IndexServiceImpl() {
-        maxRetryTimes = 2;
-    }
+    private int requestTimeout = 600;
+    private int connectTimeout = 600;
+    private int maxRetryTimes = 2;
 
     public int getMaxRetryTimes() {
         return maxRetryTimes;
@@ -42,35 +44,79 @@ public class IndexServiceImpl implements IndexService {
         this.maxRetryTimes = maxRetryTimes;
     }
 
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public int getRequestTimeout() {
+        return requestTimeout;
+    }
+
+    public void setRequestTimeout(int requestTimeout) {
+        this.requestTimeout = requestTimeout;
+    }
+
+    private NioSocketConnector openConnector(D2ResponseMessageFactory factory) {
+        NioSocketConnector connector = new NioSocketConnector();
+
+        connector.getFilterChain().addLast("logger", new LoggingFilter());
+        connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new D2ClientCoderFactory(factory)));
+        connector.setConnectTimeoutMillis(connectTimeout);
+        connector.getSessionConfig().setUseReadOperation(true);
+
+        return connector;
+    }
+
+    private void closeConnector(NioSocketConnector connector) {
+        if (connector != null) {
+            if (!connector.isDisposed()) {
+                connector.dispose();
+                logger.info("connector closed.");
+            }
+        }
+    }
+
+    public void open(D2ResponseMessageFactory factory) {
+        this.connector = openConnector(factory);
+    }
+
+    public void close() {
+        closeConnector(connector);
+    }
+
     @Override
     public D2ResponseMessage search(D2RequestMessage request, D2ResponseMessageFactory factory)
             throws MalformedURLException {
-        logger.info("request to cache:" + request);
 
-        int socketTimeout = 600;
+        NioSocketConnector connector = this.connector;
 
         D2ResponseMessage resp = null;
+        IoSession session = null;
 
         int retryTimes = 1;
+
+        if (factory != null) {
+            connector = openConnector(factory);
+        }
+
         while (retryTimes < maxRetryTimes) {
-            NioSocketConnector connector = new NioSocketConnector();
-
-            // connector.getFilterChain().addLast("logger", new
-            // LoggingFilter());
-            connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new D2ClientCoderFactory(factory)));
-            connector.setConnectTimeoutMillis(socketTimeout);
-            connector.getSessionConfig().setUseReadOperation(true);
-
             ConnectFuture cf = connector.connect(serviceDiscovery.lookup(request.getServiceAddress()));
 
             cf.awaitUninterruptibly();
             try {
                 if (cf.isConnected()) {
-                    cf.getSession().write(request);
+                    session = cf.getSession();
+                    session.write(request);
 
-                    ReadFuture readFuture = cf.getSession().read();
+                    session.suspendWrite();
 
-                    if (readFuture.awaitUninterruptibly(socketTimeout, TimeUnit.SECONDS)) {
+                    ReadFuture readFuture = session.read();
+
+                    if (readFuture.awaitUninterruptibly(requestTimeout, TimeUnit.MILLISECONDS)) {
                         resp = (D2ResponseMessage) readFuture.getMessage();
                         if (resp != null) {
                             break;
@@ -83,19 +129,23 @@ public class IndexServiceImpl implements IndexService {
                     retryTimes++;
                 }
             } catch (Exception e) {
-                logger.error("socket exception:", e);
+                logger.error("exception:", e);
                 retryTimes++;
             } finally {
-                if (!cf.isCanceled()) {
-                    cf.getSession().close(true);
-                    logger.info("session exception.");
-                }
-                if (!connector.isDisposed()) {
-                    connector.dispose();
-                    logger.info("connection exception.");
+                if (session != null) {
+                    session.close(true);
+                    logger.info("session closed.");
                 }
             }
         }
+
+        if (connector != null && connector != this.connector) {
+            if (!connector.isDisposed()) {
+                connector.dispose();
+                logger.info("connector closed.");
+            }
+        }
+
         return resp;
     }
 }

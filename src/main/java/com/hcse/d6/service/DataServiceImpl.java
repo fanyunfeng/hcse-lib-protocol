@@ -8,7 +8,6 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.ReadFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +16,7 @@ import com.hcse.d6.protocol.codec.D6ClientCoderFactory;
 import com.hcse.d6.protocol.factory.D6ResponseMessageFactory;
 import com.hcse.d6.protocol.message.D6RequestMessage;
 import com.hcse.d6.protocol.message.D6ResponseMessage;
+import com.hcse.protocol.util.LoggingFilter;
 import com.hcse.service.common.ServiceDiscoveryService;
 
 @Service
@@ -56,10 +56,6 @@ public class DataServiceImpl implements DataService {
         this.connectTimeout = connectTimeout;
     }
 
-    public void open(D6ResponseMessageFactory factory) {
-        this.connector = openConnector(factory);
-    }
-
     public int getRequestTimeout() {
         return requestTimeout;
     }
@@ -83,9 +79,13 @@ public class DataServiceImpl implements DataService {
         if (connector != null) {
             if (!connector.isDisposed()) {
                 connector.dispose();
-                logger.info("connection exception.");
+                logger.info("connector closed.");
             }
         }
+    }
+
+    public void open(D6ResponseMessageFactory factory) {
+        this.connector = openConnector(factory);
     }
 
     public void close() {
@@ -96,9 +96,7 @@ public class DataServiceImpl implements DataService {
     public D6ResponseMessage search(D6RequestMessage request, D6ResponseMessageFactory factory)
             throws MalformedURLException {
 
-        logger.info("request to cache:" + request);
-
-        NioSocketConnector connector = null;
+        NioSocketConnector connector = this.connector;
 
         D6ResponseMessage resp = null;
         IoSession session = null;
@@ -134,7 +132,7 @@ public class DataServiceImpl implements DataService {
                     retryTimes++;
                 }
             } catch (Exception e) {
-                logger.error("socket exception:", e);
+                logger.error("exception:", e);
                 retryTimes++;
             } finally {
                 if (session != null) {
@@ -144,12 +142,13 @@ public class DataServiceImpl implements DataService {
             }
         }
 
-        if (connector != null && factory != null) {
+        if (connector != null && connector != this.connector) {
             if (!connector.isDisposed()) {
                 connector.dispose();
                 logger.info("connector closed.");
             }
         }
+
         return resp;
     }
 }

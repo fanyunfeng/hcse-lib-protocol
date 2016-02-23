@@ -18,5 +18,4 @@ public class LimitQueue {
     public void popLimit(IoBuffer in) {
         in.limit(array[--size]);
     }
-
 }
