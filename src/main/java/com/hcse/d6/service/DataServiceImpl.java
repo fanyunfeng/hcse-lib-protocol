@@ -79,7 +79,9 @@ public class DataServiceImpl implements DataService {
         if (connector != null) {
             if (!connector.isDisposed()) {
                 connector.dispose();
-                logger.info("connector closed.");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("connector closed.");
+                }
             }
         }
     }
@@ -137,7 +139,9 @@ public class DataServiceImpl implements DataService {
             } finally {
                 if (session != null) {
                     session.close(true);
-                    logger.info("session closed.");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("session closed.");
+                    }
                 }
             }
         }
@@ -145,7 +149,9 @@ public class DataServiceImpl implements DataService {
         if (connector != null && connector != this.connector) {
             if (!connector.isDisposed()) {
                 connector.dispose();
-                logger.info("connector closed.");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("connector closed.");
+                }
             }
         }
 

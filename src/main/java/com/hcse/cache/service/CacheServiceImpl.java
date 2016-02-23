@@ -75,7 +75,9 @@ public class CacheServiceImpl implements CacheService {
         if (connector != null) {
             if (!connector.isDisposed()) {
                 connector.dispose();
-                logger.info("connector closed.");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("connector closed.");
+                }
             }
         }
     }
@@ -134,7 +136,9 @@ public class CacheServiceImpl implements CacheService {
             } finally {
                 if (session != null) {
                     session.close(true);
-                    logger.info("session closed.");
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("session closed.");
+                    }
                 }
             }
         }
@@ -142,7 +146,9 @@ public class CacheServiceImpl implements CacheService {
         if (connector != null && connector != this.connector) {
             if (!connector.isDisposed()) {
                 connector.dispose();
-                logger.info("connector closed.");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("connector closed.");
+                }
             }
         }
 
