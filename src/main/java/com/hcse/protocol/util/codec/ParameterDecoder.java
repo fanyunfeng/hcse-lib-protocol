@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 
-import com.hcse.cache.protocol.message.CacheResponseMessage;
+import com.hcse.protocol.cache.message.CacheResponseMessage;
 import com.hcse.protocol.util.LimitQueue;
 import com.hcse.protocol.util.packet.Parameter;
 

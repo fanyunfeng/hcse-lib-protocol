@@ -8,17 +8,13 @@ public class FieldsMap implements Cloneable {
     private ArrayList<String> fields;
     private HashMap<String, Integer> fieldsMap;
 
-    static FieldsMap[] masp = new FieldsMap[2];
+    static FieldsMap[] masp = new FieldsMap[] { new FieldsMap(0), new FieldsMap(1) };
 
     public static FieldsMap create(int type) {
-        if (masp[type] == null) {
-            masp[type] = new FieldsMap(type);
-        }
-
         return masp[type];
     }
 
-    private FieldsMap(int type) {
+    public FieldsMap(int type) {
         switch (type) {
         case 0:
             createField4Common();
@@ -28,6 +24,42 @@ public class FieldsMap implements Cloneable {
             break;
         default:
         }
+    }
+
+    private FieldsMap() {
+
+    }
+
+    public static FieldsMap create(String fieldString, String regex) {
+        FieldsMap fieldsMap = new FieldsMap();
+
+        String[] fieldArray = fieldString.split(regex);
+
+        fieldsMap.fields = new ArrayList<String>(fieldArray.length);
+        fieldsMap.fieldsMap = new HashMap<String, Integer>(fieldArray.length);
+
+        for (String i : fieldArray) {
+            fieldsMap.addField(i);
+        }
+
+        return fieldsMap;
+    }
+
+    public static FieldsMap create(String prefix, int fieldSize) {
+        FieldsMap fieldsMap = new FieldsMap();
+
+        fieldsMap.fields = new ArrayList<String>(fieldSize);
+        fieldsMap.fieldsMap = new HashMap<String, Integer>(fieldSize);
+
+        int maxLength = String.format("%d", fieldSize).length();
+
+        String format = prefix + "%0" + maxLength + "d";
+
+        for (int i = 0; i < fieldSize; i++) {
+            fieldsMap.addField(String.format(format, i));
+        }
+
+        return fieldsMap;
     }
 
     public void createFields4Logistics() {
@@ -212,4 +244,5 @@ public class FieldsMap implements Cloneable {
 
         return obj;
     }
+
 }

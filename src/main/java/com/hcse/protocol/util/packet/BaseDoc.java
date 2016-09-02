@@ -98,9 +98,7 @@ public class BaseDoc extends BasePacket {
     }
 
     public void setFieldValue(int index, String value) {
-        if (index < prototype.size()) {
-            values.add(index, value);
-        }
+        values.add(index, value);
     }
 
     public void setValues(List<String> v) {

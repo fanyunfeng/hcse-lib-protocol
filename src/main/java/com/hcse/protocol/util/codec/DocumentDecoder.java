@@ -4,7 +4,7 @@ import java.nio.charset.CharsetDecoder;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
-import com.hcse.cache.protocol.codec.CacheResponseMessageDecoder;
+import com.hcse.protocol.cache.codec.CacheResponseMessageDecoder;
 import com.hcse.protocol.util.packet.BaseDoc;
 
 public class DocumentDecoder {

@@ -12,9 +12,9 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.hcse.d6.service.DataServiceImpl;
 import com.hcse.protocol.util.LoggingFilter;
 import com.hcse.service.common.ServiceDiscoveryService;
+import com.hcse.service.d6.DataServiceImpl;
 
 public class BaseService<ResponseMessage, RequestMessage extends BaseRequest, ResponseCodecFactory extends ProtocolCodecFactory> {
     protected final Logger logger = Logger.getLogger(DataServiceImpl.class);
