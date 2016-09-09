@@ -13,23 +13,32 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.hcse.protocol.BaseResponse;
 import com.hcse.protocol.d2.message.D2ResponseMessage;
 import com.hcse.protocol.d2.message.D2ResponseMessageDoc;
+import com.hcse.util.Md5Lite;
 
-public class D2ResponseDump implements ResponseDump {
+public class D2ResponseDump extends ResponseDump {
     protected final Logger logger = Logger.getLogger(D2ResponseDump.class);
 
     private boolean pretty = true;
     private String charset = "utf8";
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private OutputStreamBuilder outputStreamBuilder;
-
-    D2ResponseDump(OutputStreamBuilder osb) {
-        this.outputStreamBuilder = osb;
+    public boolean isPretty() {
+        return pretty;
     }
 
-    public void dump(BaseResponse res) {
-        OutputStream os = outputStreamBuilder.creatOutputStream();
+    public void setPretty(boolean pretty) {
+        this.pretty = pretty;
+    }
 
+    public String getCharset() {
+        return charset;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
+    }
+
+    public void dump(OutputStream os, BaseResponse res) {
         D2ResponseMessage d2Response = (D2ResponseMessage) res;
 
         try {
@@ -40,7 +49,7 @@ public class D2ResponseDump implements ResponseDump {
             JsonGenerator generator = objectMapper.getJsonFactory().createJsonGenerator(writer);
 
             if (pretty) {
-                MyPrettyPrinter pp = new MyPrettyPrinter();
+                JsonPrettyPrinter pp = new JsonPrettyPrinter();
                 generator.setPrettyPrinter(pp);
             }
 
@@ -52,12 +61,12 @@ public class D2ResponseDump implements ResponseDump {
                 for (D2ResponseMessageDoc doc : list) {
                     generator.writeStartObject();
                     {
-                        generator.writeStringField("md5Lite", Long.toHexString(doc.getMd5Lite()).toUpperCase());
+                        generator.writeStringField("md5Lite", Md5Lite.toString(doc.getMd5Lite()));
                         generator.writeNumberField("weight", doc.getWeight());
 
                         generator.writeNumberField("indentValue", doc.getIndentValue());
-                        generator.writeNumberField("getIndentCount", doc.getIndentCount());
-                        generator.writeNumberField("getIndentPage", doc.getIndentPage());
+                        generator.writeNumberField("indentCount", doc.getIndentCount());
+                        generator.writeNumberField("indentPage", doc.getIndentPage());
 
                         generator.writeNumberField("po", doc.getPo());
                         generator.writeNumberField("ph", doc.getPh());
@@ -77,7 +86,7 @@ public class D2ResponseDump implements ResponseDump {
         } catch (IOException e) {
             logger.error("dump response failed.", e);
         } finally {
-            outputStreamBuilder.destory(os);
+
         }
     }
 }

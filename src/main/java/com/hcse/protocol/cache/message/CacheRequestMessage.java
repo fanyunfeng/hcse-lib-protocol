@@ -1,10 +1,15 @@
 package com.hcse.protocol.cache.message;
 
-import com.hcse.service.BaseRequest;
+import com.hcse.protocol.BaseRequest;
 
-public class CacheRequestMessage implements BaseRequest {
+public class CacheRequestMessage implements BaseRequest, Cloneable {
 
     // 协议的标识 3b07^2k6 和 3b06^2k6 -----> 默认为 3b06^2k6
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     // 写死可以不变
     private String comIp = "7f00000100000000";
@@ -51,6 +56,8 @@ public class CacheRequestMessage implements BaseRequest {
     private String searchString;
 
     private String serviceAddress;
+
+    private long tag;
 
     public CacheRequestMessage() {
     }
@@ -188,6 +195,14 @@ public class CacheRequestMessage implements BaseRequest {
 
     public void dataProcess() {
 
+    }
+
+    public long getTag() {
+        return tag;
+    }
+
+    public void setTag(long tag) {
+        this.tag = tag;
     }
 
     @Override

@@ -1,8 +1,12 @@
 package com.hcse.protocol.dump;
 
+import java.io.OutputStream;
+
 import com.hcse.protocol.BaseResponse;
 
-public interface ResponseDump {
+public class ResponseDump {
 
-    public void dump(BaseResponse res);
+    public void dump(OutputStream os, BaseResponse res) {
+
+    }
 }

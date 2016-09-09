@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.hcse.protocol.BasePacket;
+import com.hcse.protocol.BaseResponseDoc;
 import com.hcse.protocol.util.Decoder;
 
-public class BaseDoc extends BasePacket {
+public class BaseDoc extends BasePacket implements BaseResponseDoc {
     protected static final Logger logger = Logger.getLogger(BaseDoc.class);
 
     private long md5Lite;

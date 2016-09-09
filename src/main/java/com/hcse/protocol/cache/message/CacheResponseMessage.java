@@ -7,10 +7,11 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.hcse.protocol.BaseResponse;
 import com.hcse.protocol.util.packet.BaseDoc;
 import com.hcse.protocol.util.packet.Parameter;
 
-public class CacheResponseMessage extends CacheResponseHeader {
+public class CacheResponseMessage extends CacheResponseHeader implements BaseResponse {
     protected static final Logger logger = Logger.getLogger(CacheResponseMessage.class);
 
     private int parseState;

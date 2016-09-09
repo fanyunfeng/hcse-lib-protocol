@@ -6,7 +6,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.mina.core.buffer.IoBuffer;
 
-import com.hcse.protocol.util.packet.BasePacket;
+import com.hcse.protocol.BaseResponse;
+import com.hcse.protocol.BasePacket;
 
 public class D6ResponseMessage {
     protected static final Logger logger = Logger.getLogger(D6ResponseMessage.class);

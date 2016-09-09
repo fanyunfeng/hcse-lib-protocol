@@ -2,7 +2,7 @@ package com.hcse.protocol.handler;
 
 import com.hcse.protocol.BaseResponseDoc;
 
-public class ConstantWeight {
+public class ConstantWeight implements DocHandler {
     private long now;
 
     public ConstantWeight() {
@@ -13,7 +13,7 @@ public class ConstantWeight {
         now /= 300;
     }
 
-    void process(BaseResponseDoc doc) {
+    public void process(BaseResponseDoc doc) {
         doc.setWeight(doc.getWeight() - now);
     }
 }

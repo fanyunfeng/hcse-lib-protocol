@@ -12,11 +12,12 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.hcse.protocol.BaseRequest;
 import com.hcse.protocol.util.LoggingFilter;
 import com.hcse.service.common.ServiceDiscoveryService;
 import com.hcse.service.d6.DataServiceImpl;
 
-public class BaseService<ResponseMessage, RequestMessage extends BaseRequest, ResponseCodecFactory extends ProtocolCodecFactory> {
+public class BaseService<RequestMessage extends BaseRequest, ResponseMessage, ResponseCodecFactory extends ProtocolCodecFactory> {
     protected final Logger logger = Logger.getLogger(DataServiceImpl.class);
 
     private ServiceDiscoveryService serviceDiscovery;
@@ -30,14 +31,14 @@ public class BaseService<ResponseMessage, RequestMessage extends BaseRequest, Re
 
     private int requestTimeout = 600;
     private int connectTimeout = 600;
-    private int maxRetryTimes = 2;
+    private int maxTryTimes = 1;
 
-    public int getMaxRetryTimes() {
-        return maxRetryTimes;
+    public int getMaxTryTimes() {
+        return maxTryTimes;
     }
 
-    public void setMaxRetryTimes(int maxRetryTimes) {
-        this.maxRetryTimes = maxRetryTimes;
+    public void setMaxTryTimes(int maxTryTimes) {
+        this.maxTryTimes = maxTryTimes;
     }
 
     public int getConnectTimeout() {
@@ -69,11 +70,9 @@ public class BaseService<ResponseMessage, RequestMessage extends BaseRequest, Re
 
     private void closeConnector(NioSocketConnector connector) {
         if (connector != null) {
-            if (!connector.isDisposed()) {
-                connector.dispose();
-                if (logger.isDebugEnabled()) {
-                    logger.debug("connector closed.");
-                }
+            connector.dispose();
+            if (logger.isDebugEnabled()) {
+                logger.debug("connector closed.");
             }
         }
     }
@@ -87,20 +86,15 @@ public class BaseService<ResponseMessage, RequestMessage extends BaseRequest, Re
     }
 
     @SuppressWarnings("unchecked")
-    public ResponseMessage search(RequestMessage request, ResponseCodecFactory factory) throws MalformedURLException,
+    private ResponseMessage search(RequestMessage request, NioSocketConnector connector) throws MalformedURLException,
             ServiceException {
-
-        NioSocketConnector connector = this.connector;
 
         ResponseMessage resp = null;
         IoSession session = null;
 
-        if (factory != null) {
-            connector = openConnector(factory);
-        }
+        int tryTimes = 0;
 
-        int retryTimes = 0;
-        while (retryTimes < maxRetryTimes) {
+        while (true) {
             ConnectFuture cf = connector.connect(serviceDiscovery.lookup(request.getServiceAddress()));
 
             cf.awaitUninterruptibly();
@@ -118,19 +112,17 @@ public class BaseService<ResponseMessage, RequestMessage extends BaseRequest, Re
                         if (resp != null) {
                             break;
                         } else {
-                            retryTimes++;
-                            if (retryTimes >= maxRetryTimes) {
+                            tryTimes++;
+                            if (tryTimes >= maxTryTimes) {
                                 throw new RequestTimeout();
                             } else {
                                 logger.error("response is null.");
                             }
                         }
                     }
-
-                    cf.getSession().getCloseFuture().awaitUninterruptibly();
                 } else {
-                    retryTimes++;
-                    if (retryTimes >= maxRetryTimes) {
+                    tryTimes++;
+                    if (tryTimes >= maxTryTimes) {
                         throw new ConnectTimeout();
                     } else {
                         logger.error("connection is not connected.");
@@ -146,10 +138,21 @@ public class BaseService<ResponseMessage, RequestMessage extends BaseRequest, Re
             }
         }
 
-        if (connector != this.connector) {
-            closeConnector(connector);
+        return resp;
+    }
+
+    public ResponseMessage search(RequestMessage request, ResponseCodecFactory factory) throws MalformedURLException,
+            ServiceException {
+
+        if (factory == null) {
+            return search(request, connector);
         }
 
-        return resp;
+        NioSocketConnector connector = openConnector(factory);
+
+        ResponseMessage response = search(request, connector);
+        closeConnector(connector);
+
+        return response;
     }
 }

@@ -1,19 +1,32 @@
 package com.hcse.protocol.dump;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class FileOutputStreamBuilder implements OutputStreamBuilder {
-    private String fileName;
+import com.hcse.util.Md5Lite;
 
-    public void setFileName(String name) {
-        fileName = name;
+public class FileOutputStreamBuilder implements OutputStreamBuilder {
+    protected String dir;
+    protected String suffix;
+
+    public FileOutputStreamBuilder(String dir, String suffix) {
+        this.dir = dir;
+        this.suffix = suffix;
     }
 
     @Override
-    public OutputStream creatOutputStream() {
+    public OutputStream creatOutputStream(long tag) {
+        String filename = Md5Lite.toString(tag);
+
+        filename = dir + File.separator + filename + "." + suffix;
+
+        return creatOutputStream(filename);
+    }
+
+    public OutputStream creatOutputStream(String fileName) {
         FileOutputStream os = null;
         try {
             os = new FileOutputStream(fileName);
@@ -27,7 +40,10 @@ public class FileOutputStreamBuilder implements OutputStreamBuilder {
     @Override
     public void destory(OutputStream os) {
         try {
-            os.close();
+            if (os != null) {
+                os.close();
+            }
+
         } catch (IOException e) {
 
         }

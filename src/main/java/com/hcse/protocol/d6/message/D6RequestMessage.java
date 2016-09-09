@@ -2,11 +2,12 @@ package com.hcse.protocol.d6.message;
 
 import java.util.ArrayList;
 
-import com.hcse.service.BaseRequest;
+import com.hcse.protocol.BaseRequest;
 
-public class D6RequestMessage implements BaseRequest {
+public class D6RequestMessage implements BaseRequest, Cloneable {
     private String searchString;
 
+    public long tag;
     private int version = 1;
     private int docsCount;
     private ArrayList<D6RequestMessageDoc> docs;
@@ -78,5 +79,13 @@ public class D6RequestMessage implements BaseRequest {
 
     public int getVersion() {
         return version;
+    }
+
+    public long getTag() {
+        return tag;
+    }
+
+    public void setTag(long tag) {
+        this.tag = tag;
     }
 }

@@ -1,8 +1,13 @@
 package com.hcse.protocol.d2.message;
 
-import com.hcse.service.BaseRequest;
+import com.hcse.protocol.BaseRequest;
 
-public class D2RequestMessage implements BaseRequest {
+public class D2RequestMessage implements BaseRequest, Cloneable {
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
     private String searchString;
 
     private boolean indent = false;
@@ -17,6 +22,8 @@ public class D2RequestMessage implements BaseRequest {
     private int statisic;
 
     private String serviceAddress;
+
+    private long tag;
 
     public D2RequestMessage() {
         this.userIp = "127.0.0.1";
@@ -106,4 +113,11 @@ public class D2RequestMessage implements BaseRequest {
         this.sort = sort;
     }
 
+    public long getTag() {
+        return tag;
+    }
+
+    public void setTag(long tag) {
+        this.tag = tag;
+    }
 }

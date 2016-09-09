@@ -5,7 +5,7 @@ import java.io.OutputStream;
 public class ConsoleOutputStreamBuilder implements OutputStreamBuilder {
 
     @Override
-    public OutputStream creatOutputStream() {
+    public OutputStream creatOutputStream(long tag) {
         return System.out;
     }
 

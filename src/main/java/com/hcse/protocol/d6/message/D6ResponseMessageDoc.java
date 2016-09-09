@@ -3,7 +3,7 @@ package com.hcse.protocol.d6.message;
 import org.apache.log4j.Logger;
 import org.apache.mina.core.buffer.IoBuffer;
 
-import com.hcse.protocol.util.packet.BasePacket;
+import com.hcse.protocol.BasePacket;
 
 public class D6ResponseMessageDoc extends BasePacket {
     protected static final Logger logger = Logger.getLogger(D6ResponseMessageDoc.class);
