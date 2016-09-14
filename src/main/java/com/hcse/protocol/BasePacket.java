@@ -26,4 +26,9 @@ public class BasePacket implements BaseResponseDoc {
     public void setWeight(long weight) {
 
     }
+
+    @Override
+    public long getMd5Lite() {
+        return 0;
+    }
 }

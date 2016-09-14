@@ -94,7 +94,7 @@ public class BaseService<RequestMessage extends BaseRequest, ResponseMessage, Re
 
         int tryTimes = 0;
 
-        while (true) {
+        while (tryTimes < maxTryTimes) {
             ConnectFuture cf = connector.connect(serviceDiscovery.lookup(request.getServiceAddress()));
 
             cf.awaitUninterruptibly();
