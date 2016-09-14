@@ -95,6 +95,8 @@ public class BaseService<RequestMessage extends BaseRequest, ResponseMessage, Re
         int tryTimes = 0;
 
         while (tryTimes < maxTryTimes) {
+            tryTimes++;
+
             ConnectFuture cf = connector.connect(serviceDiscovery.lookup(request.getServiceAddress()));
 
             cf.awaitUninterruptibly();
@@ -112,7 +114,6 @@ public class BaseService<RequestMessage extends BaseRequest, ResponseMessage, Re
                         if (resp != null) {
                             break;
                         } else {
-                            tryTimes++;
                             if (tryTimes >= maxTryTimes) {
                                 throw new RequestTimeout();
                             } else {
@@ -121,7 +122,6 @@ public class BaseService<RequestMessage extends BaseRequest, ResponseMessage, Re
                         }
                     }
                 } else {
-                    tryTimes++;
                     if (tryTimes >= maxTryTimes) {
                         throw new ConnectTimeout();
                     } else {
