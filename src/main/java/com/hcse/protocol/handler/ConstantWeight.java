@@ -6,6 +6,10 @@ public class ConstantWeight implements DocHandler {
     private long now;
 
     public ConstantWeight() {
+
+    }
+
+    public void reset() {
         now = System.currentTimeMillis();
 
         now /= 1000;

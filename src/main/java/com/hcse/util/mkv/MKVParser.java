@@ -10,6 +10,7 @@ public class MKVParser {
     final int STATE_VSTART = 4;
     final int STATE_VALUE = 5;
     final int STATE_QVALUE = 6;
+    final int STATE_TRANS = 7;
 
     private int state = STATE_KSTART;
 
@@ -21,8 +22,12 @@ public class MKVParser {
 
     private String emptyChar = " \t";
 
-    public MKVParser() {
+    private int oldState = 0;
 
+    private StringBuilder buffer;
+
+    public MKVParser() {
+        buffer = new StringBuilder();
     }
 
     private boolean isEmptyChar(char c) {
@@ -41,8 +46,15 @@ public class MKVParser {
         return quote.indexOf(c) != -1;
     }
 
+    private String getFieldString() {
+        String ret = buffer.toString().trim();
+
+        buffer.delete(0, buffer.length());
+
+        return ret;
+    }
+
     public boolean parse(String str, MKVParserHandler handler) {
-        int start = STATE_KSTART;
         char quote = '\0';
 
         char c;
@@ -54,7 +66,27 @@ public class MKVParser {
 
             c = str.charAt(i);
 
+            if (c == '\\') {
+                oldState = state;
+
+                state = STATE_TRANS;
+                continue;
+            }
+
             switch (state) {
+            case STATE_TRANS:
+                switch (c) {
+                case '\'':
+                case '\"':
+                case '\\':
+                case '/':
+                    buffer.append(c);
+                    state = oldState;
+                    break;
+                default:
+                    return false;
+                }
+                break;
             case STATE_KSTART:
                 if (isKvSeperator(c)) {
                     // have not key
@@ -62,36 +94,36 @@ public class MKVParser {
                 }
 
                 if (isEmptyChar(c) || isFieldSeperator(c)) {
-                    // skip empty
-                    start = i + 1;
                     continue;
                 }
 
                 if (isQuote(c)) {
                     // start quote
                     quote = c;
-                    start = i + 1;
                     state = STATE_QKEY;
                     break;
                 }
 
-                start = i;
+		buffer.append(c);
                 state = STATE_KEY;
                 break;
             case STATE_KEY:
                 if (isKvSeperator(c)) {
-                    key = str.substring(start, i).trim();
+                    key = getFieldString();
                     state = STATE_VSTART;
                     break;
                 }
 
+                buffer.append(c);
                 break;
             case STATE_QKEY:
                 if (quote == c) {
-                    key = str.substring(start, i);
+                    key = getFieldString();
                     state = STATE_SEP;
                     break;
                 }
+
+                buffer.append(c);
                 break;
             case STATE_SEP:
                 if (isEmptyChar(c)) {
@@ -112,25 +144,22 @@ public class MKVParser {
                 }
 
                 if (isEmptyChar(c)) {
-                    // skip empty
-                    start = i + 1;
-                    continue;
+                    break;
                 }
 
                 if (isQuote(c)) {
                     // start quote
                     quote = c;
-                    start = i + 1;
                     state = STATE_QVALUE;
                     break;
                 }
 
-                start = i;
+                buffer.append(c);
                 state = STATE_VALUE;
                 break;
             case STATE_VALUE:
                 if (isFieldSeperator(c)) {
-                    value = str.substring(start, i).trim();
+                    value = getFieldString();
 
                     handler.onKvPaire(key, value);
                     state = STATE_KSTART;
@@ -138,10 +167,11 @@ public class MKVParser {
                     value = null;
                 }
 
+                buffer.append(c);
                 break;
             case STATE_QVALUE:
                 if (quote == c) {
-                    value = str.substring(start, i);
+                    value = getFieldString();
                     state = STATE_KSTART;
 
                     handler.onKvPaire(key, value);
@@ -150,13 +180,13 @@ public class MKVParser {
                     break;
                 }
 
+                buffer.append(c);
                 break;
             }
-
         }
 
         if (key != null && state == STATE_VALUE) {
-            value = str.substring(start);
+            value = getFieldString();
 
             handler.onKvPaire(key, value);
         }
