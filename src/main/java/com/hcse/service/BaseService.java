@@ -128,6 +128,8 @@ public class BaseService<RequestMessage extends BaseRequest, ResponseMessage, Re
                         logger.error("connection is not connected.");
                     }
                 }
+            } catch (Exception e){
+                logger.error("Exception:", e);
             } finally {
                 if (session != null) {
                     session.close(true);
